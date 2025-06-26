@@ -1,4 +1,5 @@
 
+
 provider "vcd" {
   user                 = var.vcd_user
   password             = var.vcd_password
@@ -10,221 +11,225 @@ provider "vcd" {
 }
 #retrieve edge gateway name
 
-data "vcd_resource_list" "edge_gateway_name" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  name          = "edge_gateway_name"
-  resource_type = "vcd_edgegateway" # find gateway name
-  list_mode     = "name"
-}
-data "vcd_edgegateway" "mygateway" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  name          = element(data.vcd_resource_list.edge_gateway_name.list,1)
-
-}
+// data "vcd_resource_list" "edge_gateway_name" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   name          = "edge_gateway_name"
+//   resource_type = "vcd_edgegateway" # find gateway name
+//   list_mode     = "name"
+// }
+// data "vcd_edgegateway" "mygateway" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   name          = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//
+// }
 
  locals {
     ansible_directory = "/tmp"
     additional_trust_bundle_dest = dirname(var.additionalTrustBundle)
     pull_secret_dest = dirname(var.openshift_pull_secret)
     nginx_repo        = "${path.cwd}/bastion-vm/ansible"
-    service_network_name      =  substr(var.vcd_url,8,3) == "dal" ? "dal10-w02-service02" : "fra04-w02-service01"
-    external_network_name     =  substr(var.vcd_url,8,3) == "dal" ? "dal10-w02-tenant-external" : "fra04-w02-tenant-external"
-    xlate_private_ip          =  element(data.vcd_edgegateway.mygateway.external_network_ips,1)
-    xlate_public_ip           =  element(data.vcd_edgegateway.mygateway.external_network_ips,2)
+    // service_network_name      =  substr(var.vcd_url,8,3) == "dal" ? "dal10-w02-service02" : "fra04-w02-service01"
+    // external_network_name     =  substr(var.vcd_url,8,3) == "dal" ? "dal10-w02-tenant-external" : "fra04-w02-tenant-external"
+    // xlate_private_ip          =  element(data.vcd_edgegateway.mygateway.external_network_ips,1)
+    // xlate_public_ip           =  element(data.vcd_edgegateway.mygateway.external_network_ips,2)
     login_to_bastion          =  "Next Step login to Bastion via: ssh -i ~/.ssh/id_bastion root@${var.initialization_info["public_bastion_ip"]}" 
  }
 
-resource "vcd_network_routed" "net" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  name         = var.initialization_info["network_name"]
-  interface_type = "internal"
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  gateway      = cidrhost(var.initialization_info["machine_cidr"], 1)
+// resource "vcd_network_routed" "net" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   name         = var.initialization_info["network_name"]
+//   interface_type = "internal"
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   gateway      = cidrhost(var.initialization_info["machine_cidr"], 1)
+//
+//   static_ip_pool {
+//     start_address = var.initialization_info["static_start_address"]
+//     end_address   = var.initialization_info["static_end_address"]
+//   }
+//  
+// }
 
-  static_ip_pool {
-    start_address = var.initialization_info["static_start_address"]
-    end_address   = var.initialization_info["static_end_address"]
-  }
-  
-}
+// Use vcd+nsxt_firewall
 
-resource "vcd_nsxv_firewall_rule" "bastion_public_outbound_allow" {
+// resource "vcd_nsxv_firewall_rule" "bastion_public_outbound_allow" {
+//
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   action       = "accept"
+//   name         = "bastion_outbound_public_allow_rule"  
+//  
+//   source {
+//    ip_addresses = [var.initialization_info["internal_bastion_ip"]]
+//   }
+//
+//   destination {
+//     ip_addresses = ["any"]
+//   }
+//
+//   service {
+//     protocol = "any"
+//   }
+//     depends_on = [
+//       vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  action       = "accept"
-  name         = "bastion_outbound_public_allow_rule"  
-  
-  source {
-    ip_addresses = [var.initialization_info["internal_bastion_ip"]]
-  }
+// resource "vcd_nsxv_firewall_rule" "bastion_private_outbound_allow" {
+//
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   action       = "accept"
+//   name         = "bastion_outbound_private_allow_rule"  
+//  
+//   source {
+//     org_networks = [var.initialization_info["network_name"]]
+//  }
+// // temp code 
+//
+//   destination {
+//     gateway_interfaces = [var.user_service_network_name == "" ? local.service_network_name : var.user_service_network_name]
+//   }
+//
+//   service {
+//     protocol = "any"
+//   }
+//     depends_on = [
+//       vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 
-  destination {
-    ip_addresses = ["any"]
-  }
+// resource "vcd_nsxv_firewall_rule" "bastion_inbound_allow" {
+//
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   action       = "accept"
+//   name         = "bastion_inbound_allow_rule"  
+//  
+//   source {
+//     ip_addresses = ["any"]
+//   }
+//
+//   destination {
+//     ip_addresses = [var.initialization_info["public_bastion_ip"]]
+//   }
+//
+//   service {
+//     protocol = "tcp"
+//     port     = "22"
+//   }
+//   service {
+//     protocol = "tcp"
+//     port     = "5000"
+//   }
+//   service {
+//     protocol = "tcp"
+//     port     = "5001"
+//   }  
+//   
+//   service {
+//     protocol = "tcp"
+//     port     = "5002"
+//   }
+//   service {
+//     protocol = "tcp"
+//     port     = "5003"
+//   }  
+//  
+//   service {
+//     protocol = "tcp"
+//     port     = "5004"
+//   }  
+//   service {
+//     protocol = "tcp"
+//     port     = "5005"
+//   }  
+//  
+//   service {
+//     protocol = "tcp"
+//     port     = "5006"
+//   }  
+//  
+//   service {
+//     protocol = "tcp"
+//     port     = "5007"
+//   }  
+//
+//   service {
+//     protocol = "tcp"
+//     port     = "5008"
+//   }  
+//
+//   service {
+//     protocol = "tcp"
+//     port     = "5009"
+//   }  
+//
+//   service {
+//     protocol = "tcp"
+//     port     = "5010"
+//   }  
+//
+//
+//     depends_on = [
+//       vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 
-  service {
-    protocol = "any"
-  }
-    depends_on = [
-      vcd_vapp_org_network.vappOrgNet,
-  ]
-}
+// Use vcd_nsxt_nat_rule
 
-resource "vcd_nsxv_firewall_rule" "bastion_private_outbound_allow" {
+// resource "vcd_nsxv_dnat" "dnat" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+// //  network_name =  local.external_network_name 
+//   network_name = var.user_tenant_external_network_name == "" ? local.external_network_name : var.user_tenant_external_network_name
+//   network_type = "ext"
+//  
+//   original_address   = var.initialization_info["public_bastion_ip"]
+//   translated_address = var.initialization_info["internal_bastion_ip"]
+//   protocol = "any"
+//   description = "Bastion DNAT Rule"
+// 
+//   depends_on = [
+//       vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  action       = "accept"
-  name         = "bastion_outbound_private_allow_rule"  
-  
-  source {
-    org_networks = [var.initialization_info["network_name"]]
-  }
-// temp code 
-
-  destination {
-    gateway_interfaces = [var.user_service_network_name == "" ? local.service_network_name : var.user_service_network_name]
-  }
-
-  service {
-    protocol = "any"
-  }
-    depends_on = [
-      vcd_vapp_org_network.vappOrgNet,
-  ]
-}
-
-resource "vcd_nsxv_firewall_rule" "bastion_inbound_allow" {
-
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  action       = "accept"
-  name         = "bastion_inbound_allow_rule"  
-  
-  source {
-    ip_addresses = ["any"]
-  }
-
-  destination {
-    ip_addresses = [var.initialization_info["public_bastion_ip"]]
-  }
-
-  service {
-    protocol = "tcp"
-    port     = "22"
-  }
-  service {
-    protocol = "tcp"
-    port     = "5000"
-  }
-  service {
-    protocol = "tcp"
-    port     = "5001"
-  }  
-  
-  service {
-    protocol = "tcp"
-    port     = "5002"
-  }
-  service {
-    protocol = "tcp"
-    port     = "5003"
-  }  
-  
-  service {
-    protocol = "tcp"
-    port     = "5004"
-  }  
-  service {
-    protocol = "tcp"
-    port     = "5005"
-  }  
-  
-  service {
-    protocol = "tcp"
-    port     = "5006"
-  }  
-  
-  service {
-    protocol = "tcp"
-    port     = "5007"
-  }  
-
-  service {
-    protocol = "tcp"
-    port     = "5008"
-  }  
-
-  service {
-    protocol = "tcp"
-    port     = "5009"
-  }  
-
-  service {
-    protocol = "tcp"
-    port     = "5010"
-  }  
-
-
-    depends_on = [
-      vcd_vapp_org_network.vappOrgNet,
-  ]
-}
-
-resource "vcd_nsxv_dnat" "dnat" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-//  network_name =  local.external_network_name 
-  network_name = var.user_tenant_external_network_name == "" ? local.external_network_name : var.user_tenant_external_network_name
-  network_type = "ext"
-  
-  original_address   = var.initialization_info["public_bastion_ip"]
-  translated_address = var.initialization_info["internal_bastion_ip"]
-  protocol = "any"
-  description = "Bastion DNAT Rule"
- 
-  depends_on = [
-      vcd_vapp_org_network.vappOrgNet,
-  ]
-}
-
-resource "vcd_nsxv_snat" "snat_pub" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-//  network_name = local.external_network_name
-    network_name = var.user_tenant_external_network_name == "" ? local.external_network_name : var.user_tenant_external_network_name
-  network_type = "ext"
-  
-  original_address   = var.initialization_info["machine_cidr"]
-  translated_address = local.xlate_public_ip
-  description = "Outbound Public SNAT Rule"
-    depends_on = [
-      vcd_vapp_org_network.vappOrgNet,
-  ]
-}
-resource "vcd_nsxv_snat" "snat_priv" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  network_name =  var.user_service_network_name == "" ? local.service_network_name : var.user_service_network_name 
-  network_type = "ext"
-  
-  original_address   = var.initialization_info["machine_cidr"]
-  translated_address = local.xlate_private_ip
-  description = "Outbound Private SNAT Rule"
-    depends_on = [
-      vcd_vapp_org_network.vappOrgNet,
-  ]
-}
+// resource "vcd_nsxv_snat" "snat_pub" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+// //  network_name = local.external_network_name
+//     network_name = var.user_tenant_external_network_name == "" ? local.external_network_name : var.user_tenant_external_network_name
+//   network_type = "ext"
+//  
+//   original_address   = var.initialization_info["machine_cidr"]
+//   translated_address = local.xlate_public_ip
+//   description = "Outbound Public SNAT Rule"
+//     depends_on = [
+//       vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
+// resource "vcd_nsxv_snat" "snat_priv" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   network_name =  var.user_service_network_name == "" ? local.service_network_name : var.user_service_network_name 
+//   network_type = "ext"
+//  
+//   original_address   = var.initialization_info["machine_cidr"]
+//   translated_address = local.xlate_private_ip
+//   description = "Outbound Private SNAT Rule"
+//     depends_on = [
+//       vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 
 
 # Shows the list of all networks with the corresponding import command
@@ -244,7 +249,7 @@ resource "vcd_vapp_org_network" "vappOrgNet" {
    vapp_name         = vcd_vapp.bastion.name
 
    org_network_name  = var.initialization_info["network_name"]
-   depends_on = [vcd_network_routed.net]
+   // depends_on = [vcd_network_routed.net]
 }
 # Create the bastion VM
 resource "vcd_vapp_vm" "bastion" { 
@@ -252,13 +257,13 @@ resource "vcd_vapp_vm" "bastion" {
   vdc          = var.vcd_vdc
   vapp_name     = vcd_vapp.bastion.name
   name          = "bastion-${var.vcd_vdc}-${var.cluster_id}"
-  depends_on = [
-    vcd_vapp_org_network.vappOrgNet,
-    vcd_nsxv_dnat.dnat,
-    vcd_nsxv_firewall_rule.bastion_inbound_allow,
-    vcd_nsxv_snat.snat_priv,
-    vcd_nsxv_snat.snat_pub,
-  ]
+  // depends_on = [
+  //   vcd_vapp_org_network.vappOrgNet,
+  //   vcd_nsxv_dnat.dnat,
+  //   vcd_nsxv_firewall_rule.bastion_inbound_allow,
+  //   vcd_nsxv_snat.snat_priv,
+  //   vcd_nsxv_snat.snat_pub,
+  // ]
    catalog_name  = var.vcd_catalog
    template_name = var.initialization_info["bastion_template"]
 #  vapp_template_id = var.vcd_catalog.var.initialization_info["bastion_template"]
