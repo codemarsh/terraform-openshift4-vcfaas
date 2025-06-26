@@ -7,7 +7,7 @@ terraform {
       source = "hashicorp/tls"
     }
     vsphere = {
-      source = "hashicorp/vsphere"
+      source = "vmware/vsphere"
     }
     vcd = {
       source = "vmware/vcd"
