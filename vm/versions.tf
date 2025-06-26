@@ -4,7 +4,7 @@ terraform {
       source = "hashicorp/template"
     }
     vsphere = {
-      source = "hashicorp/vsphere"
+      source = "vmware/vsphere"
     }
     ignition = {
       source = "community-terraform-providers/ignition"
