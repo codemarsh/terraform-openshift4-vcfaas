@@ -25,6 +25,18 @@ provider "vcd" {
 //
 // }
 
+// Retrieve VApp Template ID
+data "vcd_catalog" "my_cat" {
+  org  = var.vcd_org
+  name = var.vcd_catalog
+}
+
+data "vcd_catalog_vapp_template" "bastion_template" {
+  org        = var.vcd_org
+  catalog_id = data.vcd_catalog.my_cat.id
+  name       = var.initialization_info["bastion_template"]
+}
+
  locals {
     ansible_directory = "/tmp"
     additional_trust_bundle_dest = dirname(var.additionalTrustBundle)
@@ -264,9 +276,7 @@ resource "vcd_vapp_vm" "bastion" {
   //   vcd_nsxv_snat.snat_priv,
   //   vcd_nsxv_snat.snat_pub,
   // ]
-   catalog_name  = var.vcd_catalog
-   template_name = var.initialization_info["bastion_template"]
-#  vapp_template_id = var.vcd_catalog.var.initialization_info["bastion_template"]
+  vapp_template_id = data.vcd_catalog_vapp_template.bastion_template.id
   memory        = 8192
   cpus          = 2
   cpu_cores     = 1
@@ -276,7 +286,7 @@ resource "vcd_vapp_vm" "bastion" {
     size_in_mb         = var.bastion_disk
     bus_number         = 0
     unit_number        = 0
-}
+  }
   # Assign IP address on the routed network 
   network {
     type               = "org"
