@@ -22,127 +22,142 @@ locals {
 //  logging              = true
 //}
 
-data "vcd_resource_list" "edge_gateway_name" {
+// data "vcd_resource_list" "edge_gateway_name" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   name          = "edge_gateway_name"
+//   resource_type = "vcd_edgegateway" # Finds all networks, regardless of their type
+//   list_mode     = "name"
+// }
+
+data "vcd_resource_list" "edge_gateway_id" {
   org          = var.vcd_org
   vdc          = var.vcd_vdc
-  name          = "edge_gateway_name"
-  resource_type = "vcd_edgegateway" # Finds all networks, regardless of their type
-  list_mode     = "name"
+  name          = "edge_gateway_id"
+  // resource_type = "vcd_edgegateway" # Finds all networks, regardless of their type
+  resource_type = "vcd_nsxt_edgegateway" # Finds all networks, regardless of their type
+  list_mode     = "id"
 }
 
 # Shows the list of all networks with the corresponding import command
 output "gateway_list" {
-  value = data.vcd_resource_list.edge_gateway_name.list
+  value = data.vcd_resource_list.edge_gateway_id.list
 }
 
+// Use vcd_nsxt_firewall
+// Supported method is importing firewall config
 
-resource "vcd_nsxv_firewall_rule" "lb_allow" {
+// resource "vcd_nsxv_firewall_rule" "lb_allow" {
+// resource "vcd_nsxt_firewall" "lb_allow" {
 // if airgapped, you need the lb to have access so it can get dhcpd, coredns and haproxy images
-  count = var.airgapped["enabled"] ? 1 : 0 
+//   count = var.airgapped["enabled"] ? 1 : 0 
+//
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   action       = "accept"
+//   name         = "${var.cluster_id}_lb_allow_rule"  
+//   
+//   source {
+//     ip_addresses = [var.network_lb_ip_address]
+//   }
+//
+//   destination {
+//     ip_addresses = ["any"]
+//   }
+//
+//   service {
+//     protocol = "any"
+//   }
+// }
 
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  action       = "accept"
-  name         = "${var.cluster_id}_lb_allow_rule"  
-  
-  source {
-    ip_addresses = [var.network_lb_ip_address]
-  }
-
-  destination {
-    ip_addresses = ["any"]
-  }
-
-  service {
-    protocol = "any"
-  }
-}
-
-resource "vcd_nsxv_firewall_rule" "mirror_allow" {
+// resource "vcd_nsxv_firewall_rule" "mirror_allow" {
 // if airgapped, you need to allow access to mirrors public ip
-  count = var.airgapped["enabled"] ? 1 : 0 
+//   count = var.airgapped["enabled"] ? 1 : 0 
+// 
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   action       = "accept"
+//   name         = "${var.cluster_id}_mirror_allow_rule"  
+//   
+//   source {
+//     ip_addresses = ["any"]
+//   }
+// 
+//   destination {
+//     ip_addresses = [var.airgapped["mirror_ip"]]
+//   }
+// 
+//   service {
+//     protocol = "tcp"
+//     port     = var.airgapped["mirror_port"]
+//   }
+// }
 
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  action       = "accept"
-  name         = "${var.cluster_id}_mirror_allow_rule"  
-  
-  source {
-    ip_addresses = ["any"]
-  }
-
-  destination {
-    ip_addresses = [var.airgapped["mirror_ip"]]
-  }
-
-  service {
-    protocol = "tcp"
-    port     = var.airgapped["mirror_port"]
-  }
-}
-
-resource "vcd_nsxv_firewall_rule" "cluster_allow" {
+// resource "vcd_nsxv_firewall_rule" "cluster_allow" {
 // if not airgapped, you need the cluster to have access because the default is deny
-  count = var.airgapped["enabled"] ? 0 : 1 
+//   count = var.airgapped["enabled"] ? 0 : 1 
+// 
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   action       = "accept"
+//   name         = "${var.cluster_id}_cluster_allow_rule"  
+//   
+//   source {
+//     ip_addresses = flatten([var.network_lb_ip_address,var.cluster_ip_addresses])
+//   }
+// 
+//   destination {
+//     ip_addresses = ["any"]
+//   }
+//
+//   service {
+//     protocol = "any"
+//   }
+//
+// }
 
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  action       = "accept"
-  name         = "${var.cluster_id}_cluster_allow_rule"  
-  
-  source {
-    ip_addresses = flatten([var.network_lb_ip_address,var.cluster_ip_addresses])
-  }
-
-  destination {
-    ip_addresses = ["any"]
-  }
-
-  service {
-    protocol = "any"
-  }
-
-}
-
-resource "vcd_nsxv_firewall_rule" "ocp_console_allow" {
+// resource "vcd_nsxv_firewall_rule" "ocp_console_allow" {
 // in case you have airgapped clusters and deny all rule in place we generate an exclusion 
+//
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//
+//   action       = "accept"
+//   name         = "${var.cluster_id}_ocp_console_allow_rule"  
+//  
+//   source {
+//     ip_addresses = ["any"]
+//   }
+//
+//   destination {
+//     ip_addresses = [var.cluster_public_ip]
+//   }
+//
+//   service {
+//     protocol = "any"
+//   }
+// 
+// }
 
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+// Use vcd_nsxt_nat_rule 
 
-  action       = "accept"
-  name         = "${var.cluster_id}_ocp_console_allow_rule"  
-  
-  source {
-    ip_addresses = ["any"]
-  }
 
-  destination {
-    ip_addresses = [var.cluster_public_ip]
-  }
-
-  service {
-    protocol = "any"
-  }
- 
-}
-
-resource "vcd_nsxv_dnat" "dnat" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
-  network_name =  local.external_network_name 
-  network_type = "ext"
-  
-  original_address   = var.cluster_public_ip
-  translated_address = var.network_lb_ip_address
-  protocol = "any"
-  description = "${var.cluster_id} OCP Console DNAT Rule"
-}
+// resource "vcd_nsxv_dnat" "dnat" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   edge_gateway = element(data.vcd_resource_list.edge_gateway_name.list,1)
+//   network_name =  local.external_network_name 
+//   network_type = "ext"
+//  
+//   original_address   = var.cluster_public_ip
+//   translated_address = var.network_lb_ip_address
+//   protocol = "any"
+//   description = "${var.cluster_id} OCP Console DNAT Rule"
+// }
 
  data "template_file" "ansible_add_entries_bastion" {
   template = <<EOF
