@@ -3,7 +3,6 @@
 
 
 // ID identifying the cluster to create. Use your username so that resources created can be tracked back to you.
-
 cluster_id = "<your cluster id"
 
 // Base domain from which the cluster domain is a subdomain.
@@ -24,6 +23,11 @@ vcd_org = "<your org id>"
 // url for the vcd. (this is dal)
 vcd_url = "https://daldir01.vmware-solutions.cloud.ibm.com/api"
 
+//Name of the target Data Center Group
+vcd_dcg_name = "Data-Center-Group-Name"
+
+// Name of the target Edge Gateway
+vcd_edge_name = "dal-edge-gw-01"
 
 
 
