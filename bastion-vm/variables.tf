@@ -29,6 +29,14 @@ variable "vcd_catalog" {
   description = "This is the vcd catalog to use for the environment."
   default     = "Public Catalog"
 }
+variable "vcd_dcg_name" {
+  type        = string
+  description = "Data Center Group Name for VDC and Edge Gateway"
+}
+variable "vcd_edge_name" {
+  type        = string
+  description = "Edge Gateway name to be used for external access"
+}
 
 variable "rhcos_template" {
   type        = string
