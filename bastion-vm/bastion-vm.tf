@@ -163,7 +163,7 @@ resource "vcd_nsxt_nat_rule" "snat_priv" {
 
   name             = "${var.cluster_id}-bastion_snat_rule"
   rule_type        = "SNAT"
-  description      = "${var.cluster_id} SNAT rule 
+  description      = "${var.cluster_id} SNAT rule"
 
   firewall_match   = "MATCH_INTERNAL_ADDRESS"
 
