@@ -140,7 +140,7 @@ resource "vcd_nsxt_nat_rule" "bastion_dnat_rule" {
 
   name             = "${var.cluster_id}-bastion_dnat_rule"
   rule_type        = "DNAT"
-  description      = "${var.cluster_id} Bastion DNAT rule 
+  description      = "${var.cluster_id} Bastion DNAT rule"
 
   firewall_match   = "MATCH_EXTERNAL_ADDRESS"
 
