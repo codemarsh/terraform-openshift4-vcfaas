@@ -60,7 +60,7 @@ data "vcd_catalog_vapp_template" "bastion_template" {
 
 // Define IP Sets for firewall rules
 resource "vcd_nsxt_ip_set" "bastion_internal_ips" {
-  org              = var.vcd.org
+  org              = var.vcd_org
   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
   name             = "${var.cluster_id}-bastion_internal_address"
   ip_addresses     = [
@@ -71,7 +71,7 @@ resource "vcd_nsxt_ip_set" "bastion_internal_ips" {
   ]
 }
 resource "vcd_nsxt_ip_set" "bastion_public_ips" {
-  org              = var.vcd.org
+  org              = var.vcd_org
   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
   name             = "${var.cluster_id}-bastion_internal_address"
   ip_addresses     = [
@@ -84,7 +84,7 @@ resource "vcd_nsxt_ip_set" "bastion_public_ips" {
 
 // Define app profiles for firewall rules
 resource "vcd_nsxt_app_port_profile" "bastion_inbound_apps_ports" {
-  org              = var.vcd.org
+  org              = var.vcd_org
   context_id       = data.vcd_vdc_group.dc_group.id
   name             = "${var.cluster_id}-bastion_app_port_profile"
   scope            = "TENANT"
