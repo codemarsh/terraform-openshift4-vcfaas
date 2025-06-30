@@ -152,7 +152,7 @@ resource "vcd_nsxt_nat_rule" "bastion_dnat_rule" {
   
   logging            = true
 
-  depends_on [
+  depends_on = [
     vcd_vapp_org_network.vappOrgNet,
   ]
 }
@@ -176,7 +176,7 @@ resource "vcd_nsxt_nat_rule" "snat_priv" {
 
   logging            = true
 
-  depends_on [
+  depends_on = [
     vcd_vapp_org_network.vappOrgNet,
   ]
 }
