@@ -73,7 +73,7 @@ resource "vcd_nsxt_ip_set" "bastion_internal_ips" {
 resource "vcd_nsxt_ip_set" "bastion_public_ips" {
   org              = var.vcd_org
   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
-  name             = "${var.cluster_id}-bastion_internal_address"
+  name             = "${var.cluster_id}-bastion_public_address"
   ip_addresses     = [
     var.initialization_info["public_bastion_ip"],
   ]
@@ -99,7 +99,7 @@ resource "vcd_nsxt_app_port_profile" "bastion_inbound_apps_ports" {
 }
 // Create edge gateway firewall rules
 resource "vcd_nsxt_firewall" "bastion_firewall_rules" {
-  org              = var.vcd.org
+  org              = var.vcd_org
   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id    
 
   // Allow bastion internal outbound to Internet
