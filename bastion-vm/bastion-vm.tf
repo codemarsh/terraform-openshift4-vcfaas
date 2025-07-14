@@ -58,128 +58,132 @@ data "vcd_catalog_vapp_template" "bastion_template" {
 //  
 // }
 
+// Working on how to manage NSX-T firewall rules and associated objects. 
+// Use of this requires getting existing rules and adding to them rather than just adding new rules.
+// Manually create firewall rules before executing Terraform plan until completed.
+//
 // Define IP Sets for firewall rules
-resource "vcd_nsxt_ip_set" "bastion_internal_ips" {
-  org              = var.vcd_org
-  edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
-  name             = "${var.cluster_id}-bastion_internal_address"
-  ip_addresses     = [
-    var.initialization_info["internal_bastion_ip"],
-  ]
-  depends_on = [
-    vcd_vapp_org_network.vappOrgNet,
-  ]
-}
-resource "vcd_nsxt_ip_set" "bastion_public_ips" {
-  org              = var.vcd_org
-  edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
-  name             = "${var.cluster_id}-bastion_public_address"
-  ip_addresses     = [
-    var.initialization_info["public_bastion_ip"],
-  ]
-  depends_on = [
-    vcd_vapp_org_network.vappOrgNet,
-  ]
-}  
-
+// resource "vcd_nsxt_ip_set" "bastion_internal_ips" {
+//   org              = var.vcd_org
+//   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
+//   name             = "${var.cluster_id}-bastion_internal_address"
+//   ip_addresses     = [
+//     var.initialization_info["internal_bastion_ip"],
+//   ]
+//   depends_on = [
+//     vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
+// resource "vcd_nsxt_ip_set" "bastion_public_ips" {
+//   org              = var.vcd_org
+//   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
+//   name             = "${var.cluster_id}-bastion_public_address"
+//   ip_addresses     = [
+//     var.initialization_info["public_bastion_ip"],
+//   ]
+//   depends_on = [
+//     vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }  
+//
 // Define app profiles for firewall rules
-resource "vcd_nsxt_app_port_profile" "bastion_inbound_apps_ports" {
-  org              = var.vcd_org
-  context_id       = data.vcd_vdc_group.dc_group.id
-  name             = "${var.cluster_id}-bastion_app_port_profile"
-  scope            = "TENANT"
-  app_port {
-    protocol       = "TCP"
-    port           = ["22", "5000-5010"]
-  }
-  
-  depends_on = [
-    vcd_vapp_org_network.vappOrgNet,
-  ]
-}
+// resource "vcd_nsxt_app_port_profile" "bastion_inbound_apps_ports" {
+//   org              = var.vcd_org
+//   context_id       = data.vcd_vdc_group.dc_group.id
+//   name             = "${var.cluster_id}-bastion_app_port_profile"
+//   scope            = "TENANT"
+//   app_port {
+//     protocol       = "TCP"
+//     port           = ["22", "5000-5010"]
+//   }
+//  
+//   depends_on = [
+//     vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 // Create edge gateway firewall rules
-resource "vcd_nsxt_firewall" "bastion_firewall_rules" {
-  org              = var.vcd_org
-  edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id    
-
-  // Allow bastion internal outbound to Internet
-  rule {
-    action               = "ALLOW"
-    name                 = "${var.cluster_id} Bastion outbound"
-    direction            = "OUT"
-    ip_protocol          = "IPV4"
-    source_ids           = [vcd_nsxt_ip_set.bastion_internal_ips.id]
-    destination_ids      = []
-    app_port_profile_ids = []
-    logging              = true
-  }
-
-  // Allow bastion public IP inbound from internet
-  rule {
-    action               = "ALLOW"
-    name                 = "${var.cluster_id} Bastion inbound"
-    direction            = "IN"
-    ip_protocol          = "IPV4"
-    source_ids           = []
-    destination_ids      = [vcd_nsxt_ip_set.bastion_public_ips.id]
-    app_port_profile_ids = [vcd_nsxt_app_port_profile.bastion_inbound_apps_ports.id]
-    logging              = true
-  }
-
-  depends_on = [
-    vcd_nsxt_ip_set.bastion_internal_ips,
-    vcd_nsxt_ip_set.bastion_public_ips,
-    vcd_nsxt_app_port_profile.bastion_inbound_apps_ports,
-  ]
-}
-
+// resource "vcd_nsxt_firewall" "bastion_firewall_rules" {
+//   org              = var.vcd_org
+//   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id    
+//
+//   // Allow bastion internal outbound to Internet
+//   rule {
+//     action               = "ALLOW"
+//     name                 = "${var.cluster_id} Bastion outbound"
+//     direction            = "OUT"
+//     ip_protocol          = "IPV4"
+//     source_ids           = [vcd_nsxt_ip_set.bastion_internal_ips.id]
+//     destination_ids      = []
+//     app_port_profile_ids = []
+//     logging              = true
+//   }
+// 
+//   // Allow bastion public IP inbound from internet
+//   rule {
+//     action               = "ALLOW"
+//     name                 = "${var.cluster_id} Bastion inbound"
+//     direction            = "IN"
+//     ip_protocol          = "IPV4"
+//     source_ids           = []
+//     destination_ids      = [vcd_nsxt_ip_set.bastion_public_ips.id]
+//     app_port_profile_ids = [vcd_nsxt_app_port_profile.bastion_inbound_apps_ports.id]
+//     logging              = true
+//   }
+//
+//   depends_on = [
+//     vcd_nsxt_ip_set.bastion_internal_ips,
+//     vcd_nsxt_ip_set.bastion_public_ips,
+//     vcd_nsxt_app_port_profile.bastion_inbound_apps_ports,
+//   ]
+// }
+//
 // NAT Rules
-resource "vcd_nsxt_nat_rule" "bastion_dnat_rule" {
-  org              = var.vcd_org
-  edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
-
-  name             = "${var.cluster_id}-bastion_dnat_rule"
-  rule_type        = "DNAT"
-  description      = "${var.cluster_id} Bastion DNAT rule"
-
-  firewall_match   = "MATCH_EXTERNAL_ADDRESS"
-
-  priority         = 1
-  enabled          = true
-
-  external_address = var.initialization_info["public_bastion_ip"]
-  internal_address = var.initialization_info["internal_bastion_ip"]
-  
-  logging            = true
-
-  depends_on = [
-    vcd_vapp_org_network.vappOrgNet,
-  ]
-}
-
-resource "vcd_nsxt_nat_rule" "snat_priv" {
-  org              = var.vcd_org
-  edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
-
-  name             = "${var.cluster_id}-bastion_snat_rule"
-  rule_type        = "SNAT"
-  description      = "${var.cluster_id} SNAT rule"
-
-  firewall_match   = "MATCH_INTERNAL_ADDRESS"
-
-  priority         = 1
-  enabled          = true
-
-  external_address = var.initialization_info["public_bastion_ip"]
-  internal_address = var.initialization_info["machine_cidr"]
-  dnat_external_port = "ANY"
-
-  logging            = true
-
-  depends_on = [
-    vcd_vapp_org_network.vappOrgNet,
-  ]
-}
+// resource "vcd_nsxt_nat_rule" "bastion_dnat_rule" {
+//   org              = var.vcd_org
+//   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
+//
+//   name             = "${var.cluster_id}-bastion_dnat_rule"
+//   rule_type        = "DNAT"
+//   description      = "${var.cluster_id} Bastion DNAT rule"
+//
+//   firewall_match   = "MATCH_EXTERNAL_ADDRESS"
+//
+//   priority         = 1
+//   enabled          = true
+//
+//   external_address = var.initialization_info["public_bastion_ip"]
+//   internal_address = var.initialization_info["internal_bastion_ip"]
+//   
+//   logging            = true
+//
+//   depends_on = [
+//     vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
+//
+// resource "vcd_nsxt_nat_rule" "snat_priv" {
+//   org              = var.vcd_org
+//   edge_gateway_id  = data.vcd_nsxt_edgegateway.dcg_edge_gw.id
+//
+//   name             = "${var.cluster_id}-bastion_snat_rule"
+//   rule_type        = "SNAT"
+//   description      = "${var.cluster_id} SNAT rule"
+//
+//   firewall_match   = "MATCH_INTERNAL_ADDRESS"
+//
+//   priority         = 1
+//   enabled          = true
+//
+//   external_address = var.initialization_info["public_bastion_ip"]
+//   internal_address = var.initialization_info["machine_cidr"]
+//   dnat_external_port = "ANY"
+//
+//   logging            = true
+//
+//  depends_on = [
+//     vcd_vapp_org_network.vappOrgNet,
+//   ]
+// }
 
 // Create a Vapp (needed by the VM)
 resource "vcd_vapp" "bastion" {
@@ -187,7 +191,7 @@ resource "vcd_vapp" "bastion" {
   vdc          = var.vcd_vdc
   name         = "bastion-${var.vcd_vdc}-${var.cluster_id}"
 }
-// Associate the route network with the Vapp
+// Associate the routed network with the Vapp
 resource "vcd_vapp_org_network" "vappOrgNet" {
   org                    = var.vcd_org
   vdc                    = var.vcd_vdc
