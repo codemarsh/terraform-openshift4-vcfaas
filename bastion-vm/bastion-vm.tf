@@ -209,9 +209,9 @@ resource "vcd_vapp_vm" "bastion" {
   name          = "bastion-${var.vcd_vdc}-${var.cluster_id}"
   depends_on = [
     vcd_vapp_org_network.vappOrgNet,
-    vcd_nsxt_nat_rule.bastion_dnat_rule,
-    vcd_nsxt_nat_rule.snat_priv,
-    vcd_nsxt_firewall.bastion_firewall_rules,
+//    vcd_nsxt_nat_rule.bastion_dnat_rule,
+//    vcd_nsxt_nat_rule.snat_priv,
+//    vcd_nsxt_firewall.bastion_firewall_rules,
   ]
   vapp_template_id = data.vcd_catalog_vapp_template.bastion_template.id
   memory        = 8192
