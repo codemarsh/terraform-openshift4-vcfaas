@@ -7,7 +7,7 @@ locals {
     source_networks = [var.initialization_info["network_name"]]
     ansible_directory = "/tmp"
 //    external_network_name     =  substr(var.vcd_url,8,3) == "dal" ? "dal10-w02-tenant-external" : "fra04-w02-tenant-external"
-      external_network_name     =  var.user_tenant_external_network_name
+//      external_network_name     =  var.user_tenant_external_network_name
 
     rule_id = ""
   }
@@ -30,25 +30,26 @@ locals {
 //   list_mode     = "name"
 // }
 
-data "vcd_resource_list" "edge_gateway_id" {
-  org          = var.vcd_org
-  vdc          = var.vcd_vdc
-  name          = "edge_gateway_id"
-  // resource_type = "vcd_edgegateway" # Finds all networks, regardless of their type
-  resource_type = "vcd_nsxt_edgegateway" # Finds all networks, regardless of their type
-  list_mode     = "id"
-}
+// data "vcd_resource_list" "edge_gateway_id" {
+//   org          = var.vcd_org
+//   vdc          = var.vcd_vdc
+//   name          = "edge_gateway_id"
+//   // resource_type = "vcd_edgegateway" # Finds all networks, regardless of their type
+//   resource_type = "vcd_nsxt_edgegateway" # Finds all networks, regardless of their type
+//   list_mode     = "id"
+// }
 
-# Shows the list of all networks with the corresponding import command
-output "gateway_list" {
-  value = data.vcd_resource_list.edge_gateway_id.list
-}
+// Shows the list of all networks with the corresponding import command
+// output "gateway_list" {
+//   value = data.vcd_resource_list.edge_gateway_id.list
+// }
 
 // Use vcd_nsxt_firewall
-// Supported method is importing firewall config
-
+// Working on how to manage NSX-T firewall rules and associated objects. 
+// Use of this requires getting existing rules and adding to them rather than just adding new rules.
+// Manually create firewall rules before executing Terraform plan until completed.
+//
 // resource "vcd_nsxv_firewall_rule" "lb_allow" {
-// resource "vcd_nsxt_firewall" "lb_allow" {
 // if airgapped, you need the lb to have access so it can get dhcpd, coredns and haproxy images
 //   count = var.airgapped["enabled"] ? 1 : 0 
 //
@@ -145,7 +146,6 @@ output "gateway_list" {
 
 // Use vcd_nsxt_nat_rule 
 
-
 // resource "vcd_nsxv_dnat" "dnat" {
 //   org          = var.vcd_org
 //   vdc          = var.vcd_vdc
@@ -192,12 +192,12 @@ output "gateway_list" {
  %{if var.airgapped["enabled"]}
     - name: Copy Mirror Cert for trust
       ansible.builtin.shell: "cp ${var.additionalTrustBundle} /etc/pki/ca-trust/source/anchors/."
-#      args:
-#        warn: no  
+//      args:
+//        warn: no  
     - name: Update trust cert store for mirror ca
       ansible.builtin.shell: "update-ca-trust"
-#      args:
-#        warn: no          
+//      args:
+//        warn: no          
  %{endif}       
 EOF
 }
