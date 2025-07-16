@@ -13,17 +13,19 @@
         regexp: '(\s+)vm-rhel8(\s+)'
         replace: '\1bastion-${vcd}-${cluster_id}\2'
 
+    # DNS servers in vApp template are incorrect - 172.26.0.10, 172.26.0.11
     - name: set DNS servers
       shell: "nmcli con mod ens192 ipv4.dns \"161.26.0.10 161.26.0.11\""
 
     - name: restart NetworkManager
       shell: "systemctl restart NetworkManager"
-        
+
+    # Sufficient version of package is already installed with RHEL 8 vApp template
     # register the VM
     # - name: Prepare RHEL host entitlement enablement
-     # shell: "rpm -ivh --replacepkgs http://rhncapdal1001.adn.networklayer.com/pub/katello-ca-consumer-latest.noarch.rpm"
-     # args:
-     #   warn: no
+    #  shell: "rpm -ivh --replacepkgs http://rhncapdal1001.adn.networklayer.com/pub/katello-ca-consumer-latest.noarch.rpm"
+    #  args:
+    #    warn: no
     
     - name: Generate an uuidgen  
       shell: "uuidgen"
@@ -64,13 +66,13 @@
         name: dnsmasq
         state: restarted
         enabled: yes
-  # install install epel
+    # install install epel
     - name: install epel
       ansible.builtin.shell: "yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
      # args:
      #   warn: no         
 
- # install additional tools
+    # install additional tools
     - name: install tools
       yum:
         name:
