@@ -12,10 +12,16 @@
         path: /etc/hosts
         regexp: '(\s+)vm-rhel8(\s+)'
         replace: '\1bastion-${vcd}-${cluster_id}\2'
+
+    - name: set DNS servers
+      shell: "nmcli con mod ens192 ipv4.dns \"161.26.0.10 161.26.0.11\""
+
+    - name: restart NetworkManager
+      shell: "nmcli connection reload"
         
     # register the VM
     - name: Prepare RHEL host entitlement enablement
-      shell: "rpm -ivh --replacepkgs http://161.26.96.25/pub/katello-ca-consumer-latest.noarch.rpm"
+      shell: "rpm -ivh --replacepkgs http://rhncapdal1001.adn.networklayer.com/pub/katello-ca-consumer-latest.noarch.rpm"
      # args:
      #   warn: no
     
@@ -47,8 +53,8 @@
          path: /etc/dnsmasq.conf
          block: | 
             no-dhcp-interface=ens192
-            server=8.8.8.8
-            server=8.8.4.4
+            server=161.26.0.10
+            server=161.26.0.11
             listen-address=127.0.0.1
             interface=ens192
             interface=lo
