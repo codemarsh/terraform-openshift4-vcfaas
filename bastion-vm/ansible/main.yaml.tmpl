@@ -14,14 +14,14 @@
         replace: '\1bastion-${vcd}-${cluster_id}\2'
 
     - name: set DNS servers
-      ansible.builtin.shell: nmcli con mod ens192 ipv4.dns "161.26.0.10 161.26.0.11"
+      shell: nmcli con mod ens192 ipv4.dns "161.26.0.10 161.26.0.11"
 
     - name: restart NetworkManager
-      ansible.builtin.shell: nmcli connection reload
+      shell: systemctl restart NetworkManager
         
     # register the VM
-    - name: Prepare RHEL host entitlement enablement
-      shell: "rpm -ivh --replacepkgs http://rhncapdal1001.adn.networklayer.com/pub/katello-ca-consumer-latest.noarch.rpm"
+    # - name: Prepare RHEL host entitlement enablement
+     # shell: "rpm -ivh --replacepkgs http://rhncapdal1001.adn.networklayer.com/pub/katello-ca-consumer-latest.noarch.rpm"
      # args:
      #   warn: no
     
