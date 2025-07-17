@@ -78,7 +78,14 @@ variable "additionalTrustBundle" {
   }
 
 variable "airgapped"  {
-  type        = map(string)
+  type        = object({
+    enabled   = bool
+    ocp_ver_rel = string
+    mirror_ip = string
+    mirror_fqdn = string
+    mirror_port = string
+    mirror_repository = string
+  })
   description = "test  variable for airgapped instead of separate vars"
   default     =  {
          enabled   = false
