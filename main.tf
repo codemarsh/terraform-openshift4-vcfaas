@@ -4,8 +4,8 @@
 # }
 
 locals {
-  mirror_repo_ip      = [var.airgapped["mirror_ip"]]
-  mirror_repo_fqdn    = [var.airgapped["mirror_fqdn"]]
+  mirror_repo_ip      = var.airgapped["mirror_ip"]
+  mirror_repo_fqdn    = var.airgapped["mirror_fqdn"]
   app_name            = "${var.cluster_id}-${var.base_domain}"
   vcd_net_name        = var.initialization_info["network_name"]
   cluster_domain      = "${var.cluster_id}.${var.base_domain}"
