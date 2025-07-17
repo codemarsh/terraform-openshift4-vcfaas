@@ -50,10 +50,10 @@ variable "base_domain" {
 }
 
 
-variable "user_tenant_external_network_name" {
-  type        = string
-  description = "user provided tenant external network name"
-}
+// variable "user_tenant_external_network_name" {
+//   type        = string
+//   description = "user provided tenant external network name"
+// }
 
 variable "additionalTrustBundle" {
   type        = string
