@@ -17,8 +17,8 @@ locals {
   compute_fqdns       = [for idx in range(var.compute_count) : "compute-0${idx}.${local.cluster_domain}"]
   storage_fqdns       = [for idx in range(var.storage_count) : "storage-0${idx}.${local.cluster_domain}"]
   no_ignition         = ""
-  repo_fqdn = var.airgapped["enabled"] ? local.mirror_repo_fqdn : ""
-  repo_ip = var.airgapped["enabled"] ? local.mirror_repo_ip : ""
+  repo_fqdn = var.airgapped["enabled"] ? local.mirror_repo_fqdn : []
+  repo_ip = var.airgapped["enabled"] ? local.mirror_repo_ip : []
   openshift_console_url = "https://console-openshift-console.apps.${var.cluster_id}.${var.base_domain}"
   export_kubeconfig     = "export KUBECONFIG=${path.cwd}/installer/${var.cluster_id}/auth/kubeconfig"
   vcd_host            = replace(replace(var.vcd_url,"https://", ""),"/api","")
