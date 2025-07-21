@@ -15,7 +15,7 @@ terraform {
   }
     ignition = {
       source = "community-terraform-providers/ignition"
-      // version = "2.1.6"
+      version = "2.4.1"
     }
   }
   required_version = ">= 0.13"
