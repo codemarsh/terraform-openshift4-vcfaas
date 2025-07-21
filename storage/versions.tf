@@ -8,6 +8,7 @@ terraform {
     }
     ignition = {
       source = "community-terraform-providers/ignition"
+      version = "4.2.1"
     }
     vcd = {
       source = "vmware/vcd"
