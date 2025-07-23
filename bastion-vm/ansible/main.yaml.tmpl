@@ -87,11 +87,11 @@
           - python3-pip
         state: latest
 
- # install vcd-cli
- #   - name: install vcd-cli
- #     ansible.builtin.shell: pip3 install vcd-cli
- #     args:
- #       warn: no         
+    # install vcd-cli
+    - name: install vcd-cli
+      ansible.builtin.shell: pip3 install vcd-cli
+      args:
+        warn: no         
 
 
     # nginx as http server
