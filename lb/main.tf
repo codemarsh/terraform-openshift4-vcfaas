@@ -53,7 +53,7 @@ data "template_file" "lb_ignition" {
        ens_device     = "ens224"
        prefix         = local.dual_homed ? element(split("/", var.machine_cidr), 1) : ""
        gateway        = element(split("/", var.machine_cidr), 0)
-      gateway         = local.dual_homed ? element(split("/", var.loadbalancer_cidr, 0) : ""
+      gateway         = local.dual_homed ? element(split("/", var.loadbalancer_cidr), 0) : ""
      }))
     hostname_file        = base64encode("lb-0")
     haproxy_systemd_unit = file("${path.module}/templates/haproxy.service")
