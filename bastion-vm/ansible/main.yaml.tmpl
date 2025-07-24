@@ -31,8 +31,8 @@
       shell: "uuidgen"
       register: uuid 
 
-    - name: Set inputs by RHEL host entitlement enablement
-      ansible.builtin.shell: echo '{dmi.system.uuid:{{uuid.stdout}}}' > /etc/rhsm/facts/uuid_override.facts
+    - name: Set inputs for RHEL host entitlement enablement
+      ansible.builtin.shell: echo '{"dmi.system.uuid":"{{uuid.stdout}}"}' > /etc/rhsm/facts/uuid_override.facts
     
     - name: enable RHEL host entitlement
       ansible.builtin.shell: subscription-manager register --org=customer --activationkey=${rhel_key} --force
