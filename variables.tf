@@ -42,6 +42,11 @@ variable "rhcos_template" {
   description = "This is the name of the RHCOS template to clone."
 }
 
+variable "rhcos_template_id" {
+  type        = string
+  description = "This is the id of the RHCOS template to clone."
+}
+
 variable "mac_prefix" {
   type        = string
   description = "Prefix for creating MAC addresses for control, compute and storage nodes (first five parts. MAC address is created by taking this prefix appending it with the final part of the ip address"
