@@ -63,11 +63,8 @@ data "template_file" "lb_ignition" {
 }
 
 resource "vcd_vapp_vm" "loadbalancer" {
-
-   for_each = var.hostnames_ip_addresses
- 
-   name = element(split(".", each.key), 0)
-
+  for_each         = var.hostnames_ip_addresses
+  name             = element(split(".", each.key), 0)
 
   vdc              = var.vcd_vdc
   org              = var.vcd_org
@@ -79,26 +76,20 @@ resource "vcd_vapp_vm" "loadbalancer" {
 
   expose_hardware_virtualization = false # needs to be false for LB 
 
-
-
   network {
     type               = "org"
     name               = var.network_id
     ip                 = var.lb_ip_address
     ip_allocation_mode = "MANUAL"
-    mac                 = "${var.mac_prefix}:${element(split(".",var.lb_ip_address),3)}"
-
+    mac                = "${var.mac_prefix}:${format(%x, element(split(".",var.lb_ip_address),3))}"
     is_primary         = true
   }
 
-
-
-
- override_template_disk {
-    bus_type           = "paravirtual"
-    size_in_mb         = "250000"
-    bus_number         = 0
-    unit_number        = 0
+  override_template_disk {
+    bus_type    = "paravirtual"
+    size_in_mb  = "250000"
+    bus_number  = 0
+    unit_number = 0
 }
   guest_properties = {
     "guestinfo.ignition.config.data"          = base64encode(data.ignition_config.ignition.rendered)
@@ -106,7 +97,6 @@ resource "vcd_vapp_vm" "loadbalancer" {
 #    "guestinfo.afterburn.initrd.network-kargs" = "ip=${var.lb_ip_address}::${cidrhost(var.machine_cidr, 1)}:${cidrnetmask(var.machine_cidr)}:${element(split(".", each.key), 0)}:ens192:none ${join(" ", formatlist("nameserver=%v", var.dns_addresses))}"
   }
 }
-
 
 resource "local_file" "write_ignition" {
   content         = data.ignition_config.ignition.rendered
