@@ -12,11 +12,10 @@ variable "mac_prefix" {
   default = ""
 }
 
-variable "rhcos_template" {
+variable "rhcos_template_id" {
   type    = string
   default = ""
 }
-
 
 variable "vcd_vdc"     {
   type = string
@@ -30,14 +29,9 @@ variable "app_name"    {
   type=string
 }
 
-
-variable "vcd_catalog"  {
-  type = string
-}
 variable "cluster_domain" {
   type = string
 }
-
 
 variable "machine_cidr" {
   type = string
@@ -73,13 +67,11 @@ variable "nested_hv_enabled" {
 variable "network_id" {
   type = string
 }
+
 variable "create_vms_only" {
   type = bool
   default = false
 }
-// variable "staticip_file_vm" {
-//  type = string
-// }
 
 variable "initialization_info" {
   type = object ({
