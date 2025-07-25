@@ -18,7 +18,6 @@ data "template_file" "lb_ignition" {
     }))
     coredn_file_corefile = base64encode(templatefile("${path.module}/templates/Corefile.tmpl", {
       cluster_domain   = var.cluster_domain
-      cluster_id       = var.cluster_id
       dns_addresses = join(" ", var.dns_addresses)
       machine_cidr   = var.machine_cidr
     }))
