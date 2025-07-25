@@ -10,20 +10,11 @@ variable "app_name"    {
   type=string
 }
 
-
-variable "vcd_catalog"  {
-  type = string
-}
-
 variable "lb_ip_address" {
   type = string
 }
 
 variable "cluster_id" {
-  type = string
-}
-
-variable "rhcos_template" {
   type = string
 }
 
