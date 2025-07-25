@@ -54,12 +54,10 @@ data "ignition_file" "hostname" {
   path = "/etc/hostname"
   mode = "420"
 
-  //content {
-  //  content = "lb-0"
-  //}
-  contents {
-    source = "data:text/plain;charset=utf-8,lb-0"
+  content {
+    content = "lb-0"
   }
+
 }
 
 data "ignition_file" "static_ip" {
