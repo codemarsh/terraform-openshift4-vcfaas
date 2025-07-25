@@ -81,7 +81,7 @@ resource "vcd_vapp_vm" "loadbalancer" {
     name               = var.network_id
     ip                 = var.lb_ip_address
     ip_allocation_mode = "MANUAL"
-    mac                = "${var.mac_prefix}:${format(%x, element(split(".",var.lb_ip_address),3))}"
+    mac                = "${var.mac_prefix}:${format("%x", element(split(".",var.lb_ip_address),3))}"
     is_primary         = true
   }
 
