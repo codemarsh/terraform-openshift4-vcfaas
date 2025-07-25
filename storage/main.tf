@@ -24,7 +24,7 @@ resource "vcd_vapp_vm" "storage" {
      type               = "org"
      name               = var.network_id
      ip_allocation_mode = "DHCP"
-     mac                = "${var.mac_prefix}:${format(%x, element(split(".",values(var.hostnames_ip_addresses)[count.index]),3))}"
+     mac                = "${var.mac_prefix}:${format("%x", element(split(".",values(var.hostnames_ip_addresses)[count.index]),3))}"
      is_primary         = true
    }
  
@@ -71,7 +71,7 @@ resource "vcd_vapp_vm" "storage-vm-only" {
     type               = "org"
     name               = var.network_id
     ip_allocation_mode = "DHCP"
-    mac                = "${var.mac_prefix}:${format(%x, element(split(".",values(var.hostnames_ip_addresses)[count.index]),3))}"
+    mac                = "${var.mac_prefix}:${format("%x", element(split(".",values(var.hostnames_ip_addresses)[count.index]),3))}"
     is_primary         = true
   }
  
