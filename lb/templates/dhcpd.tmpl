@@ -16,7 +16,7 @@ subnet ${cidrhost(machine_cidr, 0)} netmask ${cidrnetmask(machine_cidr)} {
 
 %{ for hostname, addr in dhcp_ip_addresses ~}
 host ${element(split(".",hostname),0)} {
-  hardware ethernet ${mac_prefix}:${element(split(".",addr),3)};
+  hardware ethernet ${mac_prefix}:${format("%x", element(split(".",addr),3))};
   fixed-address ${addr};
 }
 %{ endfor ~}
