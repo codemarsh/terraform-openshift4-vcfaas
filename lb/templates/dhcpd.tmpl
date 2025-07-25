@@ -3,11 +3,11 @@
 #
 # Sample configuration file for ISC dhcpd
 #
-subnet cidrhost(machine_cidr, 0) netmask cidrnetmask(machine_cidr) {
+subnet ${cidrhost(machine_cidr, 0)} netmask ${cidrnetmask(machine_cidr)} {
   option domain-name-servers  ${lb_ip_address};
   option domain-name "${cluster_domain}";
-  option routers element(split("/",machine_cidr), 0);
-  option broadcast-address cidrhost(machine_cidr, -1);
+  option routers ${element(split("/",machine_cidr), 0)};
+  option broadcast-address ${cidrhost(machine_cidr, -1)};
   default-lease-time 600;
   max-lease-time 7200;
 }
