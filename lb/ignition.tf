@@ -59,6 +59,7 @@ data "ignition_file" "hostname" {
   //}
   contents {
     source = "data:text/plain;charset=utf-8,lb-0"
+  }
 }
 
 data "ignition_file" "static_ip" {
