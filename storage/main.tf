@@ -63,7 +63,6 @@ resource "vcd_vapp_vm" "storage-vm-only" {
   vdc              = var.vcd_vdc
   org              = var.vcd_org
   vapp_name        = var.app_name
-  catalog_name     = var.vcd_catalog
   vapp_template_id = var.rhcos_template_id
   power_on         = false
 
