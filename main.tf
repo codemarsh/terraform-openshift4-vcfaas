@@ -39,6 +39,18 @@ provider "vcd" {
   logging              = true
 }
 
+// Retrieve VApp Template ID
+data "vcd_catalog" "org_cat" {
+  org  = var.vcd_org
+  name = var.vcd_catalog
+}
+
+data "vcd_catalog_vapp_template" "rhcos_template" {
+  org        = var.vcd_org
+  catalog_id = data.vcd_catalog.org_cat.id
+  name       = var.rhcos_template
+}
+
 resource "vcd_vapp_org_network" "vappOrgNet" {
   org          = var.vcd_org
   vdc          = var.vcd_vdc
@@ -186,8 +198,7 @@ ingress_backend_addresses = var.compute_count == "0" ? local.l_api_backend_addre
   network_id              = var.initialization_info["network_name"]
   loadbalancer_network_id = var.initialization_info["network_name"]
 
-   vcd_catalog             = var.vcd_catalog
-   rhcos_template          = var.rhcos_template
+   rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
    num_cpus                = 2
    vcd_vdc                 = var.vcd_vdc
@@ -238,11 +249,10 @@ module "bootstrap" {
   cluster_domain = local.cluster_domain
   machine_cidr            = var.initialization_info["machine_cidr"]
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
   num_cpus      = 2
   memory        = 8192
   disk_size    = var.bootstrap_disk
@@ -266,11 +276,10 @@ module "bootstrap_vms_only" {
   cluster_domain = local.cluster_domain
   machine_cidr            = var.initialization_info["machine_cidr"]
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
   num_cpus      = 2
   memory        = 8192
   disk_size    = var.bootstrap_disk
@@ -294,11 +303,10 @@ module "control_plane_vm" {
   count = var.create_vms_only ? 0 : 1
   ignition = module.ignition.master_ignition
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
 
   cluster_domain = local.cluster_domain
@@ -325,11 +333,10 @@ module "control_plane_vm_vms_only" {
   create_vms_only = var.create_vms_only
   ignition = local.no_ignition
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
 
   cluster_domain = local.cluster_domain
@@ -360,11 +367,10 @@ module "compute_vm" {
   cluster_domain = local.cluster_domain
   machine_cidr            = var.initialization_info["machine_cidr"]
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
   num_cpus      = var.compute_num_cpus
   memory        = var.compute_memory
@@ -390,11 +396,10 @@ module "compute_vm_vms_only" {
   cluster_domain = local.cluster_domain
   machine_cidr            = var.initialization_info["machine_cidr"]
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
   num_cpus      = var.compute_num_cpus
   memory        = var.compute_memory
@@ -418,11 +423,10 @@ module "storage_vm" {
   count = var.create_vms_only ? 0 : 1
   ignition =  module.ignition.worker_ignition
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
   cluster_domain = local.cluster_domain
   machine_cidr   = var.initialization_info["machine_cidr"]
@@ -449,11 +453,10 @@ module "storage_vm_vms_only" {
   count = var.create_vms_only ? 1 : 0
   ignition = local.no_ignition
   network_id              = var.initialization_info["network_name"]
-  vcd_catalog             = var.vcd_catalog
   vcd_vdc                 = var.vcd_vdc
   vcd_org                 = var.vcd_org
   app_name                = local.app_name
-  rhcos_template          = var.rhcos_template
+  rhcos_template_id       = data.vcd_catalog_vapp_template.rhcos_template.id
 
   cluster_domain = local.cluster_domain
   machine_cidr   = var.initialization_info["machine_cidr"]
@@ -526,17 +529,17 @@ resource "local_file" "startup_vms_script" {
 }
 
 
-resource "null_resource" "start_vapp" {
-    triggers = {
-      always_run = "$timestamp()"
-  }
-       depends_on = [
-         module.compute_vm,
-         module.control_plane_vm,
-         module.storage_vm,
-     ]
-
-  provisioner "local-exec"{
-     command  = "/root/${var.cluster_id}-start-vms.sh"
-  }
-}
+//resource "null_resource" "start_vapp" {
+//    triggers = {
+//      always_run = "$timestamp()"
+//  }
+//       depends_on = [
+//         module.compute_vm,
+//         module.control_plane_vm,
+//         module.storage_vm,
+//     ]
+//
+//  provisioner "local-exec"{
+//     command  = "/root/${var.cluster_id}-start-vms.sh"
+//  }
+//}
