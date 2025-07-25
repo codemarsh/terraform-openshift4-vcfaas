@@ -232,6 +232,7 @@ resource "vcd_vapp_vm" "bastion" {
     ip                 = var.initialization_info["internal_bastion_ip"]
     is_primary         = true
     connected          = true
+    mac                = "${var.mac_prefix}:${format(%x, element(split(".", var.initialization_info["internal_bastion_ip"]),3))}"
   }
   # define Password for the vm. The the script could use it to do the ssh-copy-id to upload the ssh key
    customization {
