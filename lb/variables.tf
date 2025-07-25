@@ -27,6 +27,10 @@ variable "rhcos_template" {
   type = string
 }
 
+variable "rhcos_template_id" {
+  type        = string
+}
+
 variable "api_backend_addresses" {
   type = list(string)
 }
