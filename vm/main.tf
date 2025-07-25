@@ -17,10 +17,9 @@ resource "vcd_vapp_vm" "vm" {
   memory           = var.memory
   vdc              = var.vcd_vdc
   org              = var.vcd_org
-  vapp_name= var.app_name
-  catalog_name= var.vcd_catalog
-  template_name=var.rhcos_template
-  power_on= false
+  vapp_name        = var.app_name
+  vapp_template_id = var.rhcos_template_id
+  power_on         = false
 
    network {
      type               = "org"
@@ -53,18 +52,17 @@ resource "vcd_vapp_vm" "vm-only" {
   memory           = var.memory
   vdc              = var.vcd_vdc
   org              = var.vcd_org
-  vapp_name= var.app_name
-  catalog_name= var.vcd_catalog
-  template_name=var.rhcos_template
-  power_on= false
+  vapp_name        = var.app_name
+  vapp_template_id = var.rhcos_template_id
+  power_on         = false
 
-   network {
-     type               = "org"
-     name               = var.network_id
-     ip_allocation_mode = "DHCP"
-     mac                 = "${var.mac_prefix}:${element(split(".",values(var.hostnames_ip_addresses)[count.index]),3)}"
+  network {
+    type               = "org"
+    name               = var.network_id
+    ip_allocation_mode = "DHCP"
+    mac                = "${var.mac_prefix}:${element(split(".",values(var.hostnames_ip_addresses)[count.index]),3)}"
     is_primary         = true
-   }
+  }
  
   override_template_disk {
     bus_type           = "paravirtual"
