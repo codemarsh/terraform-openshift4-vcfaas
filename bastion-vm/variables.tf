@@ -300,7 +300,7 @@ variable "cluster_public_ip" {
 
 variable "bastion_disk" {
   type                     = string
-  default                  = 200000
+  default                  = 40960
 }
 
 variable "initialization_info" {
