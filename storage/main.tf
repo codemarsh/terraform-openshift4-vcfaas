@@ -30,7 +30,8 @@ resource "vcd_vapp_vm" "storage" {
  
   override_template_disk {
     bus_type           = "paravirtual"
-    size_in_mb         = "200000"
+    // 120 GB Disk for storage nodes
+    size_in_mb         = "122880"
     bus_number         = 0
     unit_number        = 0
 }
@@ -76,7 +77,8 @@ resource "vcd_vapp_vm" "storage-vm-only" {
  
   override_template_disk {
     bus_type    = "paravirtual"
-    size_in_mb  = "200000"
+    // 120 GB Disk for storage nodes
+    size_in_mb  = "122880"
     bus_number  = 0
     unit_number = 0
   }
