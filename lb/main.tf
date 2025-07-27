@@ -87,7 +87,7 @@ resource "vcd_vapp_vm" "loadbalancer" {
 
   override_template_disk {
     bus_type    = "paravirtual"
-    size_in_mb  = "250000"
+    size_in_mb  = "40960"
     bus_number  = 0
     unit_number = 0
 }
