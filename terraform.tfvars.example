@@ -1,13 +1,11 @@
-
-
-
-
+// Cluster details
 // ID identifying the cluster to create. Use your username so that resources created can be tracked back to you.
 cluster_id = "<your cluster id"
 
 // Base domain from which the cluster domain is a subdomain.
 base_domain = "<your base domain>"
 
+// VCF details
 // Name of the VDC.
 vcd_vdc = "<your vdc name>"
 
@@ -29,84 +27,97 @@ vcd_dcg_name = "Data-Center-Group-Name"
 // Name of the target Edge Gateway
 vcd_edge_name = "dal-edge-gw-01"
 
-
-
 // Name of the vcd Catalog
 vcd_catalog = "Public Catalog"
 
 
-// Set bootstrap_ip, control_plane_ip, and compute_ip if you want to use static
-// IPs reserved someone else, rather than the IPAM server.
-
-// The IP address to assign to the bootstrap VM.
-bootstrap_disk = 250000
+// Boostrap Host - disk size and IP Address
+// Memory and disk values = desired_GB * 1024
+bootstrap_disk = 122880
 bootstrap_ip_address = "172.16.0.70"
 
 
-// The number of control plane VMs to create. Default is 3.
+// Load Balancer Host - IP Address
+// The IP address to assign to the loadbalancer VM.
+lb_ip_address = "172.16.0.69"
+
+
+// Control Plane Hosts
+// The number of control plane VMs to create. Default is 3. Must be an odd number.
+// Memory and disk values = desired_GB * 1024
 control_plane_count = 3
-control_disk = 250000
+control_plane_num_cpus = 4
+control_plane_memory = 16384
+control_disk = 122880
 // The IP addresses to assign to the control plane VMs. The length of this list
 // must match the value of control_plane_count.
-  control_plane_ip_addresses = ["172.16.0.71", "172.16.0.72", "172.16.0.73"]
-//    control_plane_ip_addresses = ["172.16.0.51"]
+   control_plane_ip_addresses = ["172.16.0.71", "172.16.0.72", "172.16.0.73"]
 
 
+// Storage Hosts
+// Memory and disk values = desired_GB * 1024
+// Storage Nodes disk size must be at least 2097152 (2TB) if you want to install ODF
+// ODF 3 node compute total min: Lean - 24 cpu/72 gb mem, Balanced - 30 cpu/72 gb mem, Performance - 45 cpu/96 gb mem
+// Add 2 GB to mem due to memory used by the host.
+storage_count = 0
+storage_num_cpus = 16
+storage_memory = 34816
+storage_disk = 512000
+// The IP addresses to assign to the compute VMs. The length of this list must
+// match the value of compute_count. storage_ip_addresses = ["172.16.0.80", "172.16.0.81", "172.16.0.82"]
+   storage_ip_addresses = []
 
 
+// Compute Hosts
 // The number of compute VMs to create. Default is 3.
+// Memory and disk values = desired_GB * 1024
 compute_count = 3
-compute_disk =250000
-
+compute_num_cpus = 4
+compute_memory = 16384
+compute_disk = 122880
 // The IP addresses to assign to the compute VMs. The length of this list must
 // match the value of compute_count.
    compute_ip_addresses = ["172.16.0.74","172.16.0.75","172.16.0.76"]
 
 
-// Storage Nodes disk size must be at least 2097152 (2TB) if you want to install OCS
+// OpenShift Information
+//openshift_pull_secret = "/path/to/file/pull-secret"
+openshift_pull_secret = "<your pull secret location>"
 
-storage_count = 0
-storage_disk = 512000
-// storage_ip_addresses = ["172.16.0.80", "172.16.0.81", "172.16.0.82"]
+openshift_version="4.18"
 
+// Name of the RHCOS VM template to clone to create VMs for the cluster
+rhcos_template = "rhcos OpenShift 4.18.1"
 
-// The IP address to assign to the loadbalancer VM.
-lb_ip_address = "172.16.0.69"
+// additionalTrustBundle = "<your trust bundle cert if airgapped>"    
 
+// OCP repo airgapped block - don't comment out
+airgapped = {
+  enabled = false
+  ocp_ver_rel = "your-version.release"
+  mirror_ip = "ip-of-mirror" 
+  mirror_fqdn = "fqdn-of-mirror"
+  mirror_port = "port-of-mirror"
+  mirror_repository = "ocp4/openshift4"
+  }
+
+// DNS, Network, and Bastion 
 // including Bastion server for local DNS
 vm_dns_addresses = ["9.9.9.9","161.26.0.10","172.16.0.10"]
-
-//openshift_pull_secret = ""
-openshift_pull_secret = "<your pull secret location>"
-// additionalTrustBundle = "<your trust bundle cert if airgapped>"      
-
-
-openshift_version="4.6"
-// Name of the RHCOS VM template to clone to create VMs for the cluster
-rhcos_template = "rhcos OpenShift 4.6.8"
-
-// airgapped block
-airgapped = {
-      enabled = false
-      ocp_ver_rel = "<your version.release>"
-      mirror_ip = "<ip of mirror>" 
-      mirror_fqdn = "<fqdn of mirror>"
-      mirror_port = "<port of mirror>"
-      mirror_repository = "ocp4/openshift4"
-      }
 
 cluster_public_ip       = "x.x.x.x"
  
 initialization_info     = {
-    public_bastion_ip = "y.y.y.y"
-    bastion_password = "<password for bastion>"
-    internal_bastion_ip = "172.16.0.10"
-    terraform_ocp_repo = "https://github.com/ibm-cloud-architecture/terraform-openshift4-vcd"
-    rhel_key = "<redhat license key from vcd screen>"
-    machine_cidr = "172.16.0.0/16"
-    network_name      = "ocpnet"
-    static_start_address    = "172.16.0.150"
-    static_end_address      = "172.16.0.220"
-    bastion_template        = "RedHat-8-Template-Official"
-    run_cluster_install     = true
-    }
+  public_bastion_ip = "y.y.y.y"
+  bastion_password = "<password for bastion>"
+  internal_bastion_ip = "172.16.0.10"
+  terraform_ocp_repo = "https://github.com/ibm-cloud-architecture/terraform-openshift4-vcd"
+  rhel_key = "<redhat license key from vcd screen>"
+  machine_cidr = "172.16.0.0/16"
+  network_name      = "ocpnet"
+  static_start_address    = "172.16.0.150"
+  static_end_address      = "172.16.0.220"
+  bastion_template        = "RedHat-9-Template-Official"
+  run_cluster_install     = true
+  }
+
